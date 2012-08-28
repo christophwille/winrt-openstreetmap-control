@@ -17,4 +17,4 @@ Other .NET / C# implementations for OpenStreetMap include:
 
 Screenshot of Demo Frontend
 
-[[frontendscreenshot.png]]
+![In Action](https://raw.github.com/christophwille/winrt-openstreetmap-control/master/frontendscreenshot.png)
