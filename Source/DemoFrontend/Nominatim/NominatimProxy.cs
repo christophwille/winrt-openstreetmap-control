@@ -22,7 +22,7 @@ namespace DemoFrontend.Nominatim
 
             string URL =
                 String.Format(
-                    "http://open.mapquestapi.com/nominatim/v1/search?format=xml&q={0}&addressdetails=0&limit={1}&countrycodes=at&exclude_place_ids=613609",
+                    "http://open.mapquestapi.com/nominatim/v1/search?format=xml&q={0}&addressdetails=0&limit={1}&exclude_place_ids=613609",
                     query,
                     15);    // max. results to return, possibly make this configurable
 

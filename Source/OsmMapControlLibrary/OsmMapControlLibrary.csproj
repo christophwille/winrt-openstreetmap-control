@@ -108,6 +108,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScrollEnergyManager.cs" />
     <Compile Include="TileInfo.cs" />
+    <Compile Include="TileProviders\ITileProvider.cs" />
+    <Compile Include="TileProviders\MapQuestTileProvider.cs" />
+    <Compile Include="TileProviders\OsmTileProvider.cs" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
     <VisualStudioVersion>11.0</VisualStudioVersion>

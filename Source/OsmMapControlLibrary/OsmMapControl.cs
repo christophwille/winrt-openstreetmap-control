@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OsmMapControlLibrary.TileProviders;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Xaml;
@@ -38,6 +39,7 @@ namespace OsmMapControlLibrary
                 this.PointerReleased += Map_PointerReleased;
                 this.PointerMoved += Map_PointerMoved;
                 this.PointerWheelChanged += Map_PointerWheelChanged;
+                this.PointerExited += Map_PointerExited;
 
                 // this.KeyDown += Map_KeyDown;
                 // this.AddHandler(KeyDownEvent, new KeyEventHandler(Map_KeyDown), true);
@@ -214,6 +216,9 @@ namespace OsmMapControlLibrary
         /// Defines the energymanager, storing the power available for scrolling
         private ScrollEnergyManager scrollEnergyManager = new ScrollEnergyManager();
 
+        // Defines the (currently hardcoded) tile provider
+        private ITileProvider TileProvider = new OsmTileProvider();
+
         private void CompositionTarget_Rendering(object sender, object o)
         {
             if (SuspendRendering) return;
@@ -292,7 +297,7 @@ namespace OsmMapControlLibrary
             {
                 var notLoadedTile = this.notLoadedTiles.Last();
 
-                notLoadedTile.LoadImage();
+                notLoadedTile.LoadImage(TileProvider);
                 this.UpdateTile(notLoadedTile);
                 this.Children.Add(notLoadedTile.TileImage);
 
@@ -519,6 +524,11 @@ namespace OsmMapControlLibrary
         private void Map_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             this.lastPosition = e.GetCurrentPoint(this).Position;
+            this.isMouseDown = false;
+        }
+
+        private void Map_PointerExited(object sender, PointerRoutedEventArgs pointerRoutedEventArgs)
+        {
             this.isMouseDown = false;
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using OsmMapControlLibrary.TileProviders;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -62,7 +63,7 @@ namespace OsmMapControlLibrary
         /// <summary>
         /// Loads the image by tileposition
         /// </summary>
-        public void LoadImage()
+        public void LoadImage(ITileProvider tileProvider)
         {
             var tileX = this.TileX;
             var tileY = this.TileY;
@@ -96,41 +97,43 @@ namespace OsmMapControlLibrary
                 tileY -= localZoom;
             }
 
-            var url = string.Format(
-                "http://tile.openstreetmap.org/{0}/{1}/{2}.png",
-                this.Zoom.ToString(CultureInfo.InvariantCulture),
-                tileX.ToString(CultureInfo.InvariantCulture),
-                tileY.ToString(CultureInfo.InvariantCulture));
-
             var image = new Image();
-            var source = new BitmapImage(new Uri(url, UriKind.Absolute));
             image.Opacity = 0.0;
-            source.ImageOpened += (x,y) =>
-                {
-                    var animation = new DoubleAnimation();
-                    animation.From = 0.0;
-                    animation.To = 1.0;
-                    animation.Duration = TimeSpan.FromSeconds(0.1);
+            Canvas.SetZIndex(image, Zoom);
 
-                    var storyboard = new Storyboard();
-                    storyboard.Children.Add(animation);
-                    Storyboard.SetTarget(storyboard, image);
+            TileImage = image;
 
-                    // http://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.xaml.media.animation.storyboard.settargetproperty
-                    // http://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.xaml.propertypath.propertypath
-                    Storyboard.SetTargetProperty(storyboard, "Image.Opacity");
-                    storyboard.Begin();
+            var uri = tileProvider.GetTileUri(Zoom, tileX, tileY);
+            var source = new BitmapImage(uri);
 
-                    if (this.LoadingFinished != null)
-                    {
-                        this.LoadingFinished(this, EventArgs.Empty);
-                    }
-                };
-
+            source.ImageOpened += SourceOnImageOpened;
             image.Source = source;
+        }
 
-            Canvas.SetZIndex(image, this.Zoom);
-            this.TileImage = image;
+        private void SourceOnImageOpened(object sender, RoutedEventArgs routedEventArgs)
+        {
+            // Detach event handler immediately
+            var bmi = (BitmapImage)sender;
+            bmi.ImageOpened -= SourceOnImageOpened;
+
+            var animation = new DoubleAnimation();
+            animation.From = 0.0;
+            animation.To = 1.0;
+            animation.Duration = TimeSpan.FromSeconds(0.1);
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+            Storyboard.SetTarget(storyboard, TileImage);
+
+            // http://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.xaml.media.animation.storyboard.settargetproperty
+            // http://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.xaml.propertypath.propertypath
+            Storyboard.SetTargetProperty(storyboard, "Image.Opacity");
+            storyboard.Begin();
+
+            if (this.LoadingFinished != null)
+            {
+                this.LoadingFinished(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>
