@@ -211,12 +211,16 @@ namespace OsmMapControlLibrary
 
         private Point? lastPosition = null;
 
+        /// Defines the energymanager, storing the power available for scrolling
+        private ScrollEnergyManager scrollEnergyManager = new ScrollEnergyManager();
 
         private void CompositionTarget_Rendering(object sender, object o)
         {
             if (SuspendRendering) return;
 
             // Debug.WriteLine("Rendering " + DateTime.Now.ToString());
+
+            this.scrollEnergyManager.Recharge();
 
             var change = false;
             var ratio = (CurrentZoom / TargetZoom);
@@ -466,27 +470,17 @@ namespace OsmMapControlLibrary
         private void Map_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             var delta = e.GetCurrentPoint(this).Properties.MouseWheelDelta;
-            
-            // const double C1 = 300;
 
-            if (delta > 0)
+            var factor = Math.Exp(this.scrollEnergyManager.RequestEnergy(((double)delta) / 120));
+            
+            if (Double.IsNaN(factor))
             {
-                TargetZoom *= 1.2; // Math.Pow(delta / C1, Math.E);
+                Debug.WriteLine("factor = Double.NaN");
             }
             else
             {
-                TargetZoom /= 1.2;
+                this.TargetZoom *= factor;
             }
- 
-
-            //if (delta > 0)
-            //{
-            //    this.TargetZoom *= Math.Pow(2, 1 / 16.0) * delta / 120.0;
-            //}
-            //else
-            //{
-            //    this.TargetZoom /= -Math.Pow(2, 1 / 16.0) * delta / 120.0;
-            //}
         }
 
 
